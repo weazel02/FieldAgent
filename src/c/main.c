@@ -5,8 +5,16 @@
 static Window *s_main_window;
 static TextLayer *title_layer;
 SimpleMenuLayer *teams_layer;
-const char *possibleTeams[4] = {"HufflePuff", "Slytherin", "Gryffindor", "Ravenclaw"};
+const char *possibleTeams[5] = {"Choose a team!","HufflePuff", "Slytherin", "Gryffindor", "Ravenclaw"};
+const char* teamId;
 
+
+
+
+void teamItemClickCallback(){
+  int index = simple_menu_layer_get_selected_index(teams_layer);
+  teamId = possibleTeams[index];
+}
 
 static void loadTitleLayer(){
   // Get information about the Window
@@ -35,26 +43,42 @@ static void loadTitleLayer(){
 static void removeTitleLayer(){
   text_layer_destroy(title_layer);
 }
+static void removeTeamsLayer(){
+  simple_menu_layer_destroy(teams_layer);
+}
 static void loadTeamsLayer(){
   // Get information about the Window
   Layer *window_layer = window_get_root_layer(s_main_window);
-  GRect bounds = layer_get_bounds(window_layer);
+  GRect bounds = layer_get_frame(window_layer);
+    
+  SimpleMenuSection sec[1];
+  SimpleMenuItem sectionItems[4];
   
-  simple_menu_layer_create(bounds, window_layer, const SimpleMenuSection * sections, int32_t num_sections, void * callback_context)
-  
-  
+  for(int i = 0 ; i < 5; i++){
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Inside For Loop %d", i);
+    //SimpleMenuItem currItem;
+    //currItem.title = possibleTeams[i];
+    //currItem.callback = (SimpleMenuLayerSelectCallback) teamItemClickCallback;
+    sectionItems[i] = (SimpleMenuItem){.title=possibleTeams[i], .callback=(SimpleMenuLayerSelectCallback) &teamItemClickCallback};
+  }
+  sec[0] = (SimpleMenuSection) {.items = sectionItems, .num_items = 5}; 
+  teams_layer = simple_menu_layer_create(bounds, s_main_window, sec, 1, teamItemClickCallback);
+  layer_add_child(window_layer, menu_layer_get_layer(simple_menu_layer_get_menu_layer(teams_layer)));
 }
-  
-
 
 //Handler Functions
 static void main_window_load(Window *window) {
-  loadTitleLayer();
+ 
+  //loadTeamsLayer();
+  //removeTeamsLayer();
+  //loadTitleLayer();
 
 }
 
 static void main_window_unload(Window *window) {
-  removeTitleLayer();
+  removeTeamsLayer();
+  //removeTitleLayer();
+ 
 
 }
 
@@ -72,7 +96,7 @@ static void init() {
     .load = main_window_load,
     .unload = main_window_unload
   });
-
+   loadTeamsLayer();
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
 
