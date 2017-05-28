@@ -1,0 +1,29 @@
+{
+    "author": "weazel02@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "fieldagent",
+    "pebble": {
+        "capabilities": [
+            "location"
+        ],
+        "displayName": "FieldAgent",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk"
+        ],
+        "uuid": "150e3ab2-27fc-44f0-99de-15e3374f89f6",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
