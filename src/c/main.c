@@ -5,16 +5,57 @@
 static Window *s_main_window;
 static TextLayer *title_layer;
 SimpleMenuLayer *teams_layer;
-const char *possibleTeams[5] = {"Choose a team!","HufflePuff", "Slytherin", "Gryffindor", "Ravenclaw"};
-const char* teamId;
+SimpleMenuLayer *names_layer;
+char *possibleTeams[5] = {"Choose a team!","HufflePuff", "Slytherin", "Gryffindor", "Ravenclaw"};
+char *possibleNames[5] = {"Choose a name!","Draco", "Harry", "Luna", "Cedric"};
+char* teamId = NULL;
+char* nameId;
+
+static void loadNamesLayer();
+static void loadTeamsLayer();
+static void loadTitleLayer();
+static void removeTitleLayer();
+static void removeNamesLayer();
+static void removeTeamsLayer();
+static void teamItemClickCallback();
+static void nameItemClickCallback();
 
 
 
 
-void teamItemClickCallback(){
+//Function to remove layers from the windows
+static void removeTitleLayer(){
+  text_layer_destroy(title_layer);
+}
+static void removeTeamsLayer(){
+  if(teams_layer){
+     //layer_set_hidden((Layer*)menu_layer_get_layer(simple_menu_layer_get_menu_layer(teams_layer)), true);
+  layer_remove_from_parent(simple_menu_layer_get_layer(teams_layer));  
+  simple_menu_layer_destroy(teams_layer);
+  teams_layer = NULL;
+  }
+}
+
+//Callback Functions
+static void teamItemClickCallback(){
+  if(teamId == NULL){
   int index = simple_menu_layer_get_selected_index(teams_layer);
   teamId = possibleTeams[index];
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", teamId);
+  removeTeamsLayer();
+  loadTitleLayer();
+  loadNamesLayer();
+  }
 }
+static void nameItemClickCallback(){
+    int index = simple_menu_layer_get_selected_index(names_layer);
+    nameId = possibleNames[index];
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "nameId: %s", nameId);
+
+}
+
+
+//Functions to load layers to the window
 
 static void loadTitleLayer(){
   // Get information about the Window
@@ -38,14 +79,8 @@ static void loadTitleLayer(){
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(title_layer));
-  
 }
-static void removeTitleLayer(){
-  text_layer_destroy(title_layer);
-}
-static void removeTeamsLayer(){
-  simple_menu_layer_destroy(teams_layer);
-}
+
 static void loadTeamsLayer(){
   // Get information about the Window
   Layer *window_layer = window_get_root_layer(s_main_window);
@@ -55,16 +90,41 @@ static void loadTeamsLayer(){
   SimpleMenuItem sectionItems[4];
   
   for(int i = 0 ; i < 5; i++){
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Inside For Loop %d", i);
-    //SimpleMenuItem currItem;
-    //currItem.title = possibleTeams[i];
-    //currItem.callback = (SimpleMenuLayerSelectCallback) teamItemClickCallback;
+    if(i >= 1){
     sectionItems[i] = (SimpleMenuItem){.title=possibleTeams[i], .callback=(SimpleMenuLayerSelectCallback) &teamItemClickCallback};
+    }else {
+      sectionItems[i] = (SimpleMenuItem){.title=possibleTeams[i]};
+    }
   }
   sec[0] = (SimpleMenuSection) {.items = sectionItems, .num_items = 5}; 
   teams_layer = simple_menu_layer_create(bounds, s_main_window, sec, 1, teamItemClickCallback);
-  layer_add_child(window_layer, menu_layer_get_layer(simple_menu_layer_get_menu_layer(teams_layer)));
+  layer_add_child(window_layer, simple_menu_layer_get_layer(teams_layer));
 }
+static void loadNamesLayer(){
+  // Get information about the Window
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  layer_remove_child_layers(window_layer);
+  GRect bounds = layer_get_frame(window_layer);
+    
+  SimpleMenuSection sec[1];
+  SimpleMenuItem sectionItems[4];
+  
+  for(int i = 0 ; i < 5; i++){
+    if(i >= 1){
+    sectionItems[i] = (SimpleMenuItem){.title=possibleNames[i], .callback=(SimpleMenuLayerSelectCallback) &nameItemClickCallback};
+    }else {
+      sectionItems[i] = (SimpleMenuItem){.title=possibleNames[i]};
+    }
+  }
+  sec[0] = (SimpleMenuSection) {.items = sectionItems, .num_items = 5}; 
+  names_layer = simple_menu_layer_create(bounds, s_main_window, sec, 1, nameItemClickCallback);
+  layer_add_child(window_layer, menu_layer_get_layer(simple_menu_layer_get_menu_layer(names_layer)));
+}
+
+
+
+
+
 
 //Handler Functions
 static void main_window_load(Window *window) {
@@ -76,7 +136,6 @@ static void main_window_load(Window *window) {
 }
 
 static void main_window_unload(Window *window) {
-  removeTeamsLayer();
   //removeTitleLayer();
  
 
@@ -85,6 +144,8 @@ static void main_window_unload(Window *window) {
 
 
 
+
+// Main Initialization Functions 
 
 static void init() {
   
