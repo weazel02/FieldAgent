@@ -169,6 +169,52 @@ static void loadTitleLayer(){
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(title_layer));
 }
+static void loadTitleLayerRed(){
+  // Get information about the Window
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+
+  // Create the TextLayer with specific bounds
+  title_layer = text_layer_create(
+      GRect(0, PBL_IF_ROUND_ELSE(58, 52), bounds.size.w, 50));
+  
+  // Improve the layout to be more like a watchface
+  text_layer_set_background_color(title_layer, GColorRed);
+  text_layer_set_text_color(title_layer, GColorBlack);
+  text_layer_set_text(title_layer, "Project Krag");
+  text_layer_set_font(title_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
+  GSize title_size = text_layer_get_content_size(title_layer);
+ 
+  text_layer_set_size(title_layer, title_size);
+  text_layer_set_text_alignment(title_layer, GTextAlignmentCenter);
+  
+
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_layer, text_layer_get_layer(title_layer));
+}
+static void loadTitleLayerGreen(){
+  // Get information about the Window
+  Layer *window_layer = window_get_root_layer(s_main_window);
+  GRect bounds = layer_get_bounds(window_layer);
+
+  // Create the TextLayer with specific bounds
+  title_layer = text_layer_create(
+      GRect(0, PBL_IF_ROUND_ELSE(58, 52), bounds.size.w, 50));
+  
+  // Improve the layout to be more like a watchface
+  text_layer_set_background_color(title_layer, GColorGreen);
+  text_layer_set_text_color(title_layer, GColorBlack);
+  text_layer_set_text(title_layer, "Project Krag");
+  text_layer_set_font(title_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
+  GSize title_size = text_layer_get_content_size(title_layer);
+ 
+  text_layer_set_size(title_layer, title_size);
+  text_layer_set_text_alignment(title_layer, GTextAlignmentCenter);
+  
+
+  // Add it as a child layer to the Window's root layer
+  layer_add_child(window_layer, text_layer_get_layer(title_layer));
+}
 
 static void loadTeamsLayer(){
   // Get information about the Window
@@ -221,24 +267,17 @@ static void loadNamesLayer(){
 //
 //
 static void main_window_load(Window *window) {
- printf("Window load called");
+  /*
+  printf("Window load called");
   gameId = "feed101";
   teamId = "Ravenclaw";
   playerId = "Draco";
   pebbleId = "D808";
   currLat = "-73.4566";
   currLong = "112.3234";
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, createLocationMessage());
-  currLocationMessage = createLocationMessage();
-  const char* test = "opcode=FA_LOCATION|gameId=feed101|pebbleId=D808|team=Ravenclaw|player=Draco|latitude=-73.4566|longitude=112.3234|statusReq=0";
-  if (strcmp(currLocationMessage,test)==0)
-    printf("It worked!");
-  //char* loc = "-31.2343|23.4456";
-  //parseLocation(loc);
-   //APP_LOG(APP_LOG_LEVEL_DEBUG, "currLat: %s, currLong: %s", currLat, currLong);
-  //loadTeamsLayer();
-  //removeTeamsLayer();
-  //loadTitleLayer();
+  */
+  //const char* test = "opcode=FA_LOCATION|gameId=feed101|pebbleId=D808|team=Ravenclaw|player=Draco|latitude=-73.4566|longitude=112.3234|statusReq=0";
+ 
   
   
 }
@@ -278,10 +317,13 @@ static void init() {
    
    //loadNamesLayer();
   // Show the Window on the watch, with animated=true
+
+  //loadTeamsLayer();
+  loadTitleLayer();
   window_stack_push(s_main_window, true);
-  loadTeamsLayer();
   
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  
   
   
    //Set the handlers for AppMessage inbox/outbox events. Set these    *
@@ -294,6 +336,15 @@ static void init() {
     //open the app message communication protocol. Request as much space *
     //as possible, because our messages can be quite large at times.     */
     app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  
+  
+  request_pebbleId();
+  request_location();
+  if(pebbleId!=NULL && currLat != NULL && currLong != NULL){
+    loadTitleLayerGreen();
+  }else{
+    loadTitleLayerRed();
+  }
   printf("end of init");
 
 }
